@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Blackjack</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="style.css" rel="stylesheet"/>
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div id="board">
+        <div id="dealer">
+          <h1>Dealer</h1>
+          <div class="dealer-cards">
+
+          </div>
+        </div>
+        <div class="interaction">
+          <h1 id="bet-amount"></h1>
+          <p id="bet-error">
+
+          </p>
+          <input id="bet" type="number" value="2" min="2" />
+          <button id="bet-button" for="bet" type="submit" name="button">Make Bet</button>
+        </div>
+        <div id="player">
+          <h1>Player</h1>
+          <div class="player-cards">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+  <script
+    src="https://code.jquery.com/jquery-3.2.1.min.js"
+    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="script.js"></script>
+</html>
