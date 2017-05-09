@@ -19,7 +19,7 @@ function makeDeck(values, suits, deck) {
 
      for (var n = 0 ; n < values.length; n++) {
        var value = values[n];
-       var card = {number: value, suit: suit};
+       var card = {value: value, suit: suit};
        deck.push(card);
      }
   }
@@ -29,7 +29,7 @@ function dealCards(deck) {
   var randomCard = deck[Math.floor(Math.random() * deck.length)];
   console.log(randomCard);
   var dealerCard = $("<p></p>")
-  $(".dealer-cards").append(dealerCard.append(randomCard.number + randomCard.suit));
+  $(".dealer-cards").append(dealerCard.append(randomCard.value + randomCard.suit));
 }
 
 function storeBet(bet) {
