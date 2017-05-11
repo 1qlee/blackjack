@@ -468,3 +468,17 @@ template {
   padding: 20px 0;
   width: 100%;
 }
+
+.hand {
+  display: flex;
+}
+
+.card {
+  padding: 5px;
+  height: 50px;
+  border: 1px solid black;
+}
+
+.card:not(:last-child) {
+  margin-right: 20px;
+}
