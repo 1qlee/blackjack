@@ -2,7 +2,7 @@ $(document).ready(function() {
   var money = 1000;
 
   var values = [2,3,4,5,6,7,8,9,10,"J", "Q", "K", "A"];
-  var suits = ["Diamond", "Club", "Heart", "Spade"]
+  var suits = ["Diamonds", "Clubs", "Hearts", "Spades"]
   var deck = [];
 
   var dealerHand = $("#dealer-cards");
@@ -24,32 +24,66 @@ $(document).ready(function() {
     makeDeck(values, suits, deck);
     // store the bet, which returns a function to deal cards if bet fits logic
     if (storeBet(bet, money)) {
+      // show all action buttons
+      $(".action-button").removeClass("is-hidden");
+      // deal cards
       dealCards(deck, dealerCards, playerCards, dealerHand, playerHand);
-      if (handValue(playerCards) == "Blackjack!") {
-        endGame(player, true);
-      }
+      // check score
+      checkScore(playerCards);
     }
   });
   // play again button click
   $("#play-again").on("click", function() {
     $("#gen-msg, #bet-amount").text("");
-    $("#bet, #bet-button, .action-button").removeClass("is-hidden");
+    $("#bet, #bet-button").removeClass("is-hidden");
     $(this).addClass("is-hidden");
     // clear all hands
     clearHands(dealerCards, playerCards, dealerHand, playerHand);
   });
+  // hit button click
+  $("#hit").on("click", function() {
+    hit(deck, playerHand, playerCards);
+    checkScore(playerCards);
+  });
 
 });
+
+// function to check score
+function checkScore(playerCards, dealerCards) {
+  var score = handValue(playerCards)[1];
+  console.log("Checking score...");
+  console.log(score);
+  if (score == 21) {
+    return endGame("Blackjack!");
+  }
+  else if (score > 21) {
+    return endGame("Bust...");
+  }
+}
+
+// function to hit
+function hit(deck, playerHand, playerCards) {
+  // deal one card
+  dealCard(playerCards, deck, "player");
+  // set variable equal to that card
+  var lastCard = playerCards[playerCards.length - 1];
+  console.log("Player hits, adding " + lastCard.value + " of " + lastCard.suit);
+  // append the card to the DOM
+  playerHand.append($("<p class='card'></p>").append(lastCard.value + " " + lastCard.suit));
+}
 
 // function to set the current amount of money
 function setMoney(amount) {
   $("#player-money").text("Money: "+ amount);
   money = amount;
+  console.log("Setting money at " + money);
+
   return money;
 }
 
 // function to make the 52 car deck
 function makeDeck(values, suits, deck) {
+  console.log("Making 52 card deck");
   // loop thru card suits
   for (var i = 0; i < suits.length; i++) {
      var suit = suits[i];
@@ -91,40 +125,44 @@ function storeBet(bet, amount) {
   }
 }
 
+// function to deal a single card to a person
+function dealCard(personsCards, deck, person) {
+  console.log("Dealt card to " + person);
+  // set random variable
+  var rand = Math.floor(Math.random() * deck.length);
+  // set card to a random card in the deck
+  var card = deck[rand];
+  // push that card to the person's hand
+  personsCards.push(card);
+  // remove that card from the deck
+  deck.splice(rand, 1);
+}
+
 // function to deal cards
-function dealCards(deck, dealer, player, dealerHand, playerHand) {
-  // function to deal a single card to a person
-  function dealCard(person) {
-    // set random variable
-    var rand = Math.floor(Math.random() * deck.length);
-    // set card to a random card in the deck
-    var card = deck[rand];
-    // push that card to the person's hand
-    person.push(card);
-    // remove that card from the deck
-    deck.splice(rand, 1);
-  }
+function dealCards(deck, dealerCards, playerCards, dealerHand, playerHand) {
+  console.log("Dealing cards...");
   // deal cards alternatively to dealer and player
-  dealCard(dealer);
-  dealCard(player);
-  dealCard(dealer);
-  dealCard(player);
+  dealCard(dealerCards, deck, "dealer");
+  dealCard(playerCards, deck, "player");
+  dealCard(dealerCards, deck, "dealer");
+  dealCard(playerCards, deck, "player");
 
   // add the dealer's cards to the DOM, show 2nd card as hidden
-  for (var i = 0; i < dealer.length; i++) {
+  for (var i = 0; i < dealerCards.length; i++) {
     if (i == 0) {
-      dealerHand.append($("<p class='card'></p>").append(dealer[i].value + " " + dealer[i].suit));
+      dealerHand.append($("<p class='card'></p>").append(dealerCards[i].value + " " + dealerCards[i].suit));
     } else {
       dealerHand.append($("<p class='card'></p>").text("Hidden"));
     }
   }
   // add the player's cards to the DOM
-  for (var n = 0; n < player.length; n++) {
-    playerHand.append($("<p class='card'></p>").append(player[n].value + " " + player[n].suit));
+  for (var n = 0; n < playerCards.length; n++) {
+    playerHand.append($("<p class='card'></p>").append(playerCards[n].value + " " + playerCards[n].suit));
   }
 }
 
 function clearHands(dealer, player, dealerHand, playerHand) {
+  console.log("Clearing hands...");
   // clear all hands
   dealer.length = 0;
   player.length = 0;
@@ -156,7 +194,7 @@ function handValue(hand) {
   // loop through the hand and add the value to the temp_value var
   // if the hand has an ace, add one to the value of num_aces var
   for (var i = 0; i < hand.length; i++) {
-    if (hand[i] == "A") {
+    if (hand[i].value == "A") {
       num_aces += 1;
     }
     temp_value += cardValue(hand[i]);
@@ -173,28 +211,29 @@ function handValue(hand) {
   }
 
   if (temp_value < 21) {
-    return temp_value;
+    return [String(temp_value), temp_value];
   }
   else if (temp_value == 21) {
-    return "Blackjack!";
+    return ["Blackjack!", 21];
   }
   else {
-    return "Bust";
+    return ["Bust", temp_value];
   }
 }
 
-function endGame(winner, Boolean) {
+function endGame(event) {
+  console.log("Round is over.");
   var message = $("#gen-msg");
   // natural wins and game ends
-  if (Boolean) {
-    message.text("Natural. You win!");
-    $("#play-again").removeClass("is-hidden");
-    $(".action-button").addClass("is-hidden");
+  if (event == "Blackjack!") {
+    message.text(event);
   }
-  else if (winner == player) {
-    message.text("You win!");
+  else if (event == "Bust...") {
+    message.text(event);
   }
   else {
     message.text("Dealer wins.");
   }
+  $("#play-again").removeClass("is-hidden");
+  $(".action-button").addClass("is-hidden");
 }
