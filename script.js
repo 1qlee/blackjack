@@ -1,6 +1,4 @@
 $(document).ready(function() {
-  var money = 1000;
-
   var values = [2,3,4,5,6,7,8,9,10,"J", "Q", "K", "A"];
   var suits = ["Diamonds", "Clubs", "Hearts", "Spades"]
   var deck = [];
@@ -15,11 +13,13 @@ $(document).ready(function() {
   var playerScore = 0;
 
   // set the initial money to 1000
-  setMoney(money);
+  setMoney(1000);
 
   // on bet-button click
   $("#bet-button").on("click", function() {
     var bet = $("#bet").val();
+    var moneyValue = $("#player-money").text().substring(7);
+    var money = parseInt(moneyValue);
     // make a standard 52 card deck
     makeDeck(values, suits, deck);
     // store the bet, which returns a function to deal cards if bet fits logic
@@ -45,21 +45,12 @@ $(document).ready(function() {
     hit(deck, playerHand, playerCards);
     checkScore(playerCards);
   });
+  // stand button click
+  $("#stand").on("click", function() {
+    stand(deck, dealerHand, dealerCards);
+  })
 
 });
-
-// function to check score
-function checkScore(playerCards, dealerCards) {
-  var score = handValue(playerCards)[1];
-  console.log("Checking score...");
-  console.log(score);
-  if (score == 21) {
-    return endGame("Blackjack!");
-  }
-  else if (score > 21) {
-    return endGame("Bust...");
-  }
-}
 
 // function to hit
 function hit(deck, playerHand, playerCards) {
@@ -72,16 +63,30 @@ function hit(deck, playerHand, playerCards) {
   playerHand.append($("<p class='card'></p>").append(lastCard.value + " " + lastCard.suit));
 }
 
-// function to set the current amount of money
-function setMoney(amount) {
-  $("#player-money").text("Money: "+ amount);
-  money = amount;
-  console.log("Setting money at " + money);
-
-  return money;
+// function to stand
+function stand(deck, dealerHand, dealerCards) {
+  // dealer flips card
+  revealHiddenCard();
+  // while dealer score is less than 17, keep drawing
+  var score = handValue(dealerCards);
+  console.log(score);
+  while (score < 17) {
+    dealCard(dealerCards, deck, "dealer");
+  }
 }
 
-// function to make the 52 car deck
+function revealHiddenCard() {
+  $("#hidden-card").removeClass("is-hidden");
+  $("#dummy-card").addClass("is-hidden");
+}
+
+// function to set the current amount of money
+function setMoney(amount) {
+  $("#player-money").text("Money: " + amount);
+  console.log("Setting money at " + amount);
+}
+
+// function to make the 52 card deck
 function makeDeck(values, suits, deck) {
   console.log("Making 52 card deck");
   // loop thru card suits
@@ -99,29 +104,45 @@ function makeDeck(values, suits, deck) {
 }
 
 // function to set and store the bet
-function storeBet(bet, amount) {
+function storeBet(bet, money) {
+  var betAmount = $("#bet-amount");
+  var message = $("#bet-error");
   // set minimum bet at 2
   if (bet < 2) {
     console.log("Invalid bet amount");
-    $("#bet-amount").text("");
-    $("#bet-error").text("Bet must be >= 2");
+    betAmount.text("");
+    message.text("Bet must be >= 2");
     return false;
   }
   // bet cannot exceed amount of money
-  else if (bet > amount) {
+  else if (bet > money) {
     console.log("Bet amount greater than money");
-    $("#bet-amount").text("");
-    $("#bet-error").text("You don't have enough money!");
+    betAmount.text("");
+    message.text("You don't have enough money!");
     return false;
   }
   // set bet and return true
   else {
     console.log("Bet is " + bet);
-    $("#bet-error").text("");
-    $("#bet-amount").text("Bet: " + bet);
+    betAmount.text("Bet: " + bet);
+    message.text("");
     $("#bet, #bet-button").addClass("is-hidden");
-    setMoney(amount - bet);
+    money -= bet;
+    setMoney(money);
     return true;
+  }
+}
+
+// function to check score
+function checkScore(playerCards, dealerCards) {
+  var playerScore = handValue(playerCards)[1];
+  console.log("Checking score...");
+  console.log(playerScore);
+  if (playerScore == 21) {
+    return endGame("Blackjack!");
+  }
+  else if (playerScore > 21) {
+    return endGame("Bust...");
   }
 }
 
@@ -152,7 +173,8 @@ function dealCards(deck, dealerCards, playerCards, dealerHand, playerHand) {
     if (i == 0) {
       dealerHand.append($("<p class='card'></p>").append(dealerCards[i].value + " " + dealerCards[i].suit));
     } else {
-      dealerHand.append($("<p class='card'></p>").text("Hidden"));
+      dealerHand.append($("<p id='hidden-card' class='card is-hidden'></p>").append(dealerCards[i].value + " " + dealerCards[i].suit));
+      dealerHand.append($("<p id='dummy-card' class='card'></p>").text("Hidden"));
     }
   }
   // add the player's cards to the DOM
@@ -226,9 +248,11 @@ function endGame(event) {
   var message = $("#gen-msg");
   // natural wins and game ends
   if (event == "Blackjack!") {
+    console.log("Blackjack!");
     message.text(event);
   }
   else if (event == "Bust...") {
+    console.log("Bust!");
     message.text(event);
   }
   else {
