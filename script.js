@@ -17,6 +17,7 @@ $(document).ready(function() {
 
   // on bet-button click
   $("#bet-button").on("click", function() {
+    // money vars
     var bet = $("#bet").val();
     var moneyValue = $("#player-money").text().substring(7);
     var money = parseInt(moneyValue);
@@ -28,8 +29,9 @@ $(document).ready(function() {
       $(".action-button").removeClass("is-hidden");
       // deal cards
       dealCards(deck, dealerCards, playerCards, dealerHand, playerHand);
+      addCards(dealerCards, playerCards, dealerHand, playerHand);
       // check score
-      checkScore(playerCards);
+      checkScore(playerCards, dealerCards, "natural");
     }
   });
   // play again button click
@@ -43,12 +45,16 @@ $(document).ready(function() {
   // hit button click
   $("#hit").on("click", function() {
     hit(deck, playerHand, playerCards);
-    checkScore(playerCards);
+    checkScore(playerCards, dealerCards, "checkPlayer");
   });
   // stand button click
   $("#stand").on("click", function() {
     stand(deck, dealerHand, dealerCards);
-  })
+    checkScore(playerCards, dealerCards, "checkAll");
+  });
+  $("#surrender").on("click", function() {
+
+  });
 
 });
 
@@ -67,14 +73,22 @@ function hit(deck, playerHand, playerCards) {
 function stand(deck, dealerHand, dealerCards) {
   // dealer flips card
   revealHiddenCard();
-  // while dealer score is less than 17, keep drawing
-  var score = handValue(dealerCards);
-  console.log(score);
-  while (score < 17) {
+  // set var for dealer's current score
+  var dealerScore = handValue(dealerCards)[1];
+  console.log("Dealer score is " + dealerScore);
+  // while his current score is less than 17, deal him another card
+  while (dealerScore < 17) {
     dealCard(dealerCards, deck, "dealer");
+    dealerScore = handValue(dealerCards)[1];
+    // set variable equal to that card
+    var lastCard = dealerCards[dealerCards.length - 1];
+    console.log("Player stands, adding " + lastCard.value + " of " + lastCard.suit +" to dealer's hand.");
+    // append the card to the DOM
+    dealerHand.append($("<p class='card'></p>").append(lastCard.value + " " + lastCard.suit));
   }
 }
 
+// function to reveal dealer's hidden hand (on stand)
 function revealHiddenCard() {
   $("#hidden-card").removeClass("is-hidden");
   $("#dummy-card").addClass("is-hidden");
@@ -134,15 +148,49 @@ function storeBet(bet, money) {
 }
 
 // function to check score
-function checkScore(playerCards, dealerCards) {
+function checkScore(playerCards, dealerCards, event) {
   var playerScore = handValue(playerCards)[1];
+  var dealerScore = handValue(dealerCards)[1];
+
   console.log("Checking score...");
-  console.log(playerScore);
-  if (playerScore == 21) {
-    return endGame("Blackjack!");
+  console.log("Player score is " + playerScore);
+  console.log("Dealer score is " + dealerScore);
+  // logic for player winning or losing (w naturals incl)
+  if (event == "natural") {
+    if (playerScore == 21) {
+      revealHiddenCard();
+      if (dealerScore == playerScore) {
+        return endGame("It's a tie! Your bet stays for the next round.");
+      }
+      else {
+        return endGame("Natural! You win!");
+      }
+    }
   }
-  else if (playerScore > 21) {
-    return endGame("Bust...");
+  if (event == "checkPlayer") {
+    if (playerScore == 21) {
+      revealHiddenCard();
+      if (dealerScore == playerScore) {
+        return endGame("It's a tie! Your bet stays for the next round.");
+      }
+      else {
+        return endGame("Blackjack! You win!");
+      }
+    }
+    if (playerScore > 21) {
+      return endGame("Bust...");
+    }
+  }
+  if (event == "checkAll") {
+    if (dealerScore > 21) {
+      return endGame("Dealer busts... You win!");
+    }
+    else if (dealerScore > playerScore) {
+      return endGame("Dealer wins.");
+    }
+    else {
+      return endGame("You win!");
+    }
   }
 }
 
@@ -167,7 +215,10 @@ function dealCards(deck, dealerCards, playerCards, dealerHand, playerHand) {
   dealCard(playerCards, deck, "player");
   dealCard(dealerCards, deck, "dealer");
   dealCard(playerCards, deck, "player");
+}
 
+// function to add cards to the DOM
+function addCards(dealerCards, playerCards, dealerHand, playerHand) {
   // add the dealer's cards to the DOM, show 2nd card as hidden
   for (var i = 0; i < dealerCards.length; i++) {
     if (i == 0) {
@@ -183,6 +234,7 @@ function dealCards(deck, dealerCards, playerCards, dealerHand, playerHand) {
   }
 }
 
+// function to clear both players' hands (end of round)
 function clearHands(dealer, player, dealerHand, playerHand) {
   console.log("Clearing hands...");
   // clear all hands
@@ -246,18 +298,16 @@ function handValue(hand) {
 function endGame(event) {
   console.log("Round is over.");
   var message = $("#gen-msg");
-  // natural wins and game ends
-  if (event == "Blackjack!") {
-    console.log("Blackjack!");
-    message.text(event);
-  }
-  else if (event == "Bust...") {
-    console.log("Bust!");
-    message.text(event);
-  }
-  else {
-    message.text("Dealer wins.");
-  }
+  // blackjack
+  console.log(event);
+  message.text(event);
+
   $("#play-again").removeClass("is-hidden");
   $(".action-button").addClass("is-hidden");
+
+  return payOut();
+}
+
+function payOut(bet, money) {
+
 }
