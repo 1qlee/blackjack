@@ -562,19 +562,19 @@ input {
 }
 
 .clubs {
-  background-image: url("http://i.imgur.com/X7ImgDS.png");
+  background-image: url("../images/clubs42x42.png");
 }
 
 .diamonds {
-  background-image: url("http://i.imgur.com/Zm4HuxJ.png");
+  background-image: url("../images/diamonds42x42.png");
 }
 
 .hearts {
-  background-image: url("http://i.imgur.com/gcBK8je.png");
+  background-image: url("../images/hearts42x42.png");
 }
 
 .spades {
-  background-image: url("http://i.imgur.com/XM8qUiV.png");
+  background-image: url("../images/spades42x42.png");
 }
 
 .is-hidden {
