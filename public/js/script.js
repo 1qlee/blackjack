@@ -40,7 +40,7 @@ $(document).ready(function() {
     $("#bet, #bet-button").removeClass("is-hidden");
     $(this).addClass("is-hidden");
     // clear all hands
-    clearHands(dealerCards, playerCards, dealerHand, playerHand);
+    newGame(deck, dealerCards, playerCards, dealerHand, playerHand);
   });
   // hit button click
   $("#hit").on("click", function() {
@@ -234,7 +234,8 @@ function addCards(dealerCards, playerCards, dealerHand, playerHand) {
         "<p class='value'>" + dealerCards[i].value + "<span class='suit " + dealerCards[i].suit + "'></span>" + "</p>",
         "<p class='value'>" + "<span class='suit " + dealerCards[i].suit + "'></span>" + dealerCards[i].value + "</p>"
       ));
-    } else {
+    }
+    else {
       dealerHand.append($("<p id='dummy-card' class='card'></p>").text("Hidden"));
       dealerHand.append($("<p id='hidden-card' class='card is-hidden'></p>").append(
         "<p class='value'>" + dealerCards[i].value + "<span class='suit " + dealerCards[i].suit + "'></span>" + "</p>",
@@ -252,8 +253,10 @@ function addCards(dealerCards, playerCards, dealerHand, playerHand) {
 }
 
 // function to clear both players' hands (end of round)
-function clearHands(dealer, player, dealerHand, playerHand) {
+function newGame(deck, dealer, player, dealerHand, playerHand) {
   console.log("Clearing hands...");
+  // clear deck
+  deck.length = 0;
   // clear all hands
   dealer.length = 0;
   player.length = 0;
