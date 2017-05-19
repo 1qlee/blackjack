@@ -452,21 +452,49 @@ template {
 /* Custom Styles
    ========================================================================== */
 .container {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  margin: 0 auto;
-  max-width: 800px;
+  color: rgba(0,0,0,0.88);
+  font-family: 'Roboto Slab';
+  font-weight: 400;
 }
 
 #board {
   align-items: center;
   display: flex;
   flex-direction: column;
-  height: 600px;
+  height: 100vh;
   justify-content: space-between;
   padding: 20px 0;
   width: 100%;
+  background-color: #4CAF50
+}
+
+.header {
+  text-align: center;
+  font-weight: 400;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 10px;
+}
+
+.button {
+  background-color: #fff;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Roboto Slab';
+  font-weight: 400;
+  padding: 8px 15px;
+  transition: box-shadow 0.25s ease;
+}
+
+.button:hover {
+  box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+}
+
+input {
+  font-family: 'Roboto Slab';
+  font-weight: 400;
+  height: 35px;
+  padding-left: 5px;
 }
 
 .hand {
@@ -474,14 +502,50 @@ template {
 }
 
 .card {
-  padding: 5px;
-  height: 50px;
-  border: 1px solid black;
+  background-color: #fff;
   border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  height: 100px;
+  justify-content: space-between;
+  padding: 5px;
+  width: 65px;
+}
+
+.value:last-child {
+  align-self: flex-end;
+}
+
+.suit {
+  background-position: center;
+  background-size: cover;
+  display: inline-block;
+  height: 12px;
+  margin: -3px 2px 0;
+  vertical-align: middle;
+  width: 12px;
+}
+
+.clubs {
+  background-image: url("http://i.imgur.com/dqlJwlZ.png");
+}
+
+.diamonds {
+  background-image: url("http://i.imgur.com/XotpH7X.png");
+}
+
+.hearts {
+  background-image: url("http://i.imgur.com/26mgDmj.png");
+}
+
+.spades {
+  background-image: url("http://i.imgur.com/rBDOmsv.png");
 }
 
 .card:not(:last-child) {
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .is-hidden {

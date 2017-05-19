@@ -5,6 +5,7 @@
     <title>Blackjack</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400" rel="stylesheet">
     <link href="style.css" rel="stylesheet"/>
   </head>
 
@@ -13,7 +14,7 @@
     <div class="container">
       <div id="board">
         <div id="dealer">
-          <h1 style="text-align: center;"><strong>Dealer</strong></h1>
+          <h1 class="header">Dealer</h1>
           <div id="dealer-cards" class="hand">
 
           </div>
@@ -27,17 +28,17 @@
           </div>
           <div class="action-bet">
             <input id="bet" type="number" value="2" min="2" />
-            <button id="bet-button" for="bet" type="submit" name="button">Make Bet</button>
+            <button id="bet-button" class="button" for="bet" type="submit" name="button">Make Bet</button>
           </div>
           <div class="action-buttons">
-            <button id="hit" class="action-button is-hidden" type="button" name="hit">Hit</button>
-            <button id="stand" class="action-button is-hidden" type="button" name="stand">Stand</button>
-            <button id="surrender" class="action-button is-hidden" type="button" name="surrender">Surrender</button>
-            <button id="play-again" class="is-hidden" type="button" name="playAgain">Play Again</button>
+            <button id="hit" class="button action-button is-hidden" type="button" name="hit">Hit</button>
+            <button id="stand" class="button action-button is-hidden" type="button" name="stand">Stand</button>
+            <button id="surrender" class="button action-button is-hidden" type="button" name="surrender">Surrender</button>
+            <button id="play-again" class="button is-hidden" type="button" name="playAgain">New Hand</button>
           </div>
         </div>
         <div id="player">
-          <h1 style="text-align: center;"><strong>Player</strong></h1>
+          <h1  class="header">You</h1>
           <div id="player-cards" class="hand">
 
           </div>

@@ -1,6 +1,6 @@
 $(document).ready(function() {
   var values = [2,3,4,5,6,7,8,9,10,"J", "Q", "K", "A"];
-  var suits = ["Diamonds", "Clubs", "Hearts", "Spades"]
+  var suits = ["diamonds", "clubs", "hearts", "spades"]
   var deck = [];
 
   var dealerHand = $("#dealer-cards");
@@ -18,7 +18,7 @@ $(document).ready(function() {
   // on bet-button click
   $("#bet-button").on("click", function() {
     // money vars
-    var bet = $("#bet").val();
+    var bet = parseInt($("#bet").val());
     var moneyValue = $("#player-money").text().substring(7);
     var money = parseInt(moneyValue);
     // make a standard 52 card deck
@@ -53,7 +53,7 @@ $(document).ready(function() {
     checkScore(playerCards, dealerCards, "checkAll");
   });
   $("#surrender").on("click", function() {
-
+    return endGame("You surrendered, losing half your bet.", "surrender");
   });
 
 });
@@ -66,7 +66,10 @@ function hit(deck, playerHand, playerCards) {
   var lastCard = playerCards[playerCards.length - 1];
   console.log("Player hits, adding " + lastCard.value + " of " + lastCard.suit);
   // append the card to the DOM
-  playerHand.append($("<p class='card'></p>").append(lastCard.value + " " + lastCard.suit));
+  playerHand.append($("<p class='card'></p>").append(
+    "<p class='value'>" + lastCard.value + "<span class='suit " + lastCard.suit + "'></span>" + "</p>",
+    "<p class='value'>" + "<span class='suit " + lastCard.suit + "'></span>" + lastCard.value + "</p>"
+  ));
 }
 
 // function to stand
@@ -84,7 +87,10 @@ function stand(deck, dealerHand, dealerCards) {
     var lastCard = dealerCards[dealerCards.length - 1];
     console.log("Player stands, adding " + lastCard.value + " of " + lastCard.suit +" to dealer's hand.");
     // append the card to the DOM
-    dealerHand.append($("<p class='card'></p>").append(lastCard.value + " " + lastCard.suit));
+    dealerHand.append($("<p class='card'></p>").append(
+      "<p class='value'>" + lastCard.value + "<span class='suit " + lastCard.suit + "'></span>" + "</p>",
+      "<p class='value'>" + "<span class='suit " + lastCard.suit + "'></span>" + lastCard.value + "</p>"
+    ));
   }
 }
 
@@ -148,7 +154,7 @@ function storeBet(bet, money) {
 }
 
 // function to check score
-function checkScore(playerCards, dealerCards, event) {
+function checkScore(playerCards, dealerCards, action) {
   var playerScore = handValue(playerCards)[1];
   var dealerScore = handValue(dealerCards)[1];
 
@@ -156,40 +162,42 @@ function checkScore(playerCards, dealerCards, event) {
   console.log("Player score is " + playerScore);
   console.log("Dealer score is " + dealerScore);
   // logic for player winning or losing (w naturals incl)
-  if (event == "natural") {
+  if (action == "natural") {
     if (playerScore == 21) {
       revealHiddenCard();
       if (dealerScore == playerScore) {
-        return endGame("It's a tie! Your bet stays for the next round.");
+        return endGame("It's a tie! Bet resetting.", "tie");
       }
       else {
-        return endGame("Natural! You win!");
+        return endGame("Natural! You win!", "natural");
       }
     }
   }
-  if (event == "checkPlayer") {
-    if (playerScore == 21) {
-      revealHiddenCard();
-      if (dealerScore == playerScore) {
-        return endGame("It's a tie! Your bet stays for the next round.");
-      }
-      else {
-        return endGame("Blackjack! You win!");
-      }
-    }
+  if (action == "checkPlayer") {
     if (playerScore > 21) {
-      return endGame("Bust...");
+      return endGame("Bust...", "lose");
     }
   }
-  if (event == "checkAll") {
+  if (action == "checkAll") {
     if (dealerScore > 21) {
-      return endGame("Dealer busts... You win!");
+      return endGame("Dealer busts... You win!", "win");
     }
     else if (dealerScore > playerScore) {
-      return endGame("Dealer wins.");
+      return endGame("Dealer wins.", "lose");
+    }
+    else if (dealerScore == playerScore) {
+      if (dealerCards.length > playerCards.length) {
+        return endGame("You win!", "win");
+      }
+      else if (dealerCards.length < playerCards.length){
+        return endGame("Dealer wins", "lose");
+      }
+      else {
+        return endGame("It's a tie! Bet resetting.", "tie");
+      }
     }
     else {
-      return endGame("You win!");
+      return endGame("You win!", "win");
     }
   }
 }
@@ -222,15 +230,24 @@ function addCards(dealerCards, playerCards, dealerHand, playerHand) {
   // add the dealer's cards to the DOM, show 2nd card as hidden
   for (var i = 0; i < dealerCards.length; i++) {
     if (i == 0) {
-      dealerHand.append($("<p class='card'></p>").append(dealerCards[i].value + " " + dealerCards[i].suit));
+      dealerHand.append($("<p class='card'></p>").append(
+        "<p class='value'>" + dealerCards[i].value + "<span class='suit " + dealerCards[i].suit + "'></span>" + "</p>",
+        "<p class='value'>" + "<span class='suit " + dealerCards[i].suit + "'></span>" + dealerCards[i].value + "</p>"
+      ));
     } else {
-      dealerHand.append($("<p id='hidden-card' class='card is-hidden'></p>").append(dealerCards[i].value + " " + dealerCards[i].suit));
       dealerHand.append($("<p id='dummy-card' class='card'></p>").text("Hidden"));
+      dealerHand.append($("<p id='hidden-card' class='card is-hidden'></p>").append(
+        "<p class='value'>" + dealerCards[i].value + "<span class='suit " + dealerCards[i].suit + "'></span>" + "</p>",
+        "<p class='value'>" + "<span class='suit " + dealerCards[i].suit + "'></span>" + dealerCards[i].value + "</p>"
+      ));
     }
   }
   // add the player's cards to the DOM
   for (var n = 0; n < playerCards.length; n++) {
-    playerHand.append($("<p class='card'></p>").append(playerCards[n].value + " " + playerCards[n].suit));
+    playerHand.append($("<p class='card'></p>").append(
+      "<p class='value'>" + playerCards[n].value + "<span class='suit " + playerCards[n].suit + "'></span>" + "</p>",
+      "<p class='value'>" + "<span class='suit " + playerCards[n].suit + "'></span>" + playerCards[n].value + "</p>"
+    ));
   }
 }
 
@@ -295,19 +312,38 @@ function handValue(hand) {
   }
 }
 
-function endGame(event) {
+function endGame(msg, pay) {
   console.log("Round is over.");
   var message = $("#gen-msg");
   // blackjack
-  console.log(event);
-  message.text(event);
+  console.log(msg);
+  message.text(msg);
 
   $("#play-again").removeClass("is-hidden");
   $(".action-button").addClass("is-hidden");
 
-  return payOut();
+  return payOut(pay);
 }
 
-function payOut(bet, money) {
+function payOut(pay) {
+  // money vars
+  var bet = parseInt($("#bet").val());
+  var moneyValue = $("#player-money").text().substring(7);
+  var money = parseInt(moneyValue);
 
+  if (pay == "tie") {
+    return setMoney(money + bet);
+  }
+  else if (pay == "natural") {
+    return setMoney(money + (bet * 2.5));
+  }
+  else if (pay == "win") {
+    return setMoney(money + bet * 2);
+  }
+  else if (pay == "surrender") {
+    return setMoney(money + bet * 0.5);
+  }
+  else {
+    return setMoney(money);
+  }
 }
